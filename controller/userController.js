@@ -1,5 +1,6 @@
 const User = require('../model/user');
 const db = require('../config/db.js');
+const Books = require('../model/books');
 
 exports.getPage = async(req,res)=>{
     try{
@@ -20,6 +21,16 @@ exports.getLogin = async(req,res)=>{
     }
     catch(err){
         
+    }
+}
+exports.getAddBook = async(req,res)=>{
+    try{
+        res.render('addBook',{
+            
+        })
+    }
+    catch(err){
+
     }
 }
 // const bcrypt = require('bcrypt');
@@ -70,5 +81,48 @@ exports.getProfile = async (req, res) => {
     } catch (err) {
         console.error('Error in loading profile:', err);
         res.redirect('/login');
+    }
+}
+
+//Adding Book code  
+exports.addBook = async(req,res)=>{
+    try{
+        const {title,author,isbn,price,quantity} = req.body;
+        const bookAdded = await Books.create({title,author,isbn,price,quantity});
+        console.log("Book is added",bookAdded);
+        return res.redirect('back');
+        res.render('addBook',{
+
+        })
+    }
+    catch(err){
+
+    }
+}
+
+//books displaying code
+exports.getBooks = async(req,res)=>{
+    try{
+        const books = await Books.find({}).exec();
+        res.render('getBook',{
+            books_list:books
+        });
+    }
+    catch(err){
+
+    }
+}
+
+//delete book
+exports.deleteBook = async(req,res)=>{
+    try{
+        let id = req.query.id;
+        const deleted = await Books.findByIdAndDelete(id);
+        console.log('Contact Deleted',deleted);
+        return res.redirect('back');
+    }
+    catch(err){
+        console.log('error in deleting the book');
+        return res.redirect('back');
     }
 }
