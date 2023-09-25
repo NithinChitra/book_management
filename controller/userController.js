@@ -27,21 +27,17 @@ exports.verifyLogin = async(req,res)=>{
     try{
         const {email,password} = req.body;
         const existingEmail = await User.findOne({email});
-        if(!existingEmail){
-            return res.status(401).json({error: 'Invalid email or password'});
+        
+        if(!(existingEmail.password == password) || !existingEmail){
+            return res.status(401).json({error:'Invalid email and password'});
         }
-        if(existingEmail.password == password){
-            console.log("ACCEPTED");
-        }
-        else{
-            console.log("Not Accepted");
-        }
+        req.session.user = existingEmail;
         // const passwordMatch = await bcrypt.compare(password,existingUser.password);
-        return res.redirect('back');
+        return res.redirect('/profile');
     }
     catch(err){
         console.error('Error in verifying login:', err);
-        return res.redirect('back');
+        return res.redirect('/login');
     }
 }
 exports.createUser = async(req,res)=>{
@@ -62,3 +58,17 @@ exports.createUser = async(req,res)=>{
     }
 }
 
+exports.getProfile = async (req, res) => {
+    try {
+        // Check if the user is logged in
+        if (!req.session.user) {
+            return res.redirect('/login');
+        }
+
+        // Render the user profile page with user details
+        res.render('profile', { user_details: req.session.user });
+    } catch (err) {
+        console.error('Error in loading profile:', err);
+        res.redirect('/login');
+    }
+}
